@@ -6,20 +6,27 @@ import { SendEmailInterface } from '../interface/send-email.interface';
 
 @Injectable()
 export class SendgridService {
+  private readonly SENDGRID_API_URL = process.env.SENDGRID_API_URL;
+  private readonly SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+
   constructor(private readonly httpService: HttpService) {}
 
   async sendEmail(data: SendEmailInterface): Promise<boolean> {
-    const url = 'https://api.sendgrid.com/v3/mail/send';
+    const url = `${this.SENDGRID_API_URL}/mail/send`;
     const config: AxiosRequestConfig = {
       headers: {
-        Authorization:
-          'Bearer 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',
+        Authorization: `Bearer ${this.SENDGRID_API_KEY}`,
       },
     };
-    const response = await lastValueFrom(
-      this.httpService.post(url, data, config),
-    );
-    console.log(response.data);
-    return response.status == HttpStatus.ACCEPTED;
+    try {
+      const response = await lastValueFrom(
+        this.httpService.post(url, data, config),
+      );
+      console.log(response.data);
+      return response.status == HttpStatus.ACCEPTED;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   }
 }
